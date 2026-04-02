@@ -8,7 +8,10 @@ const subtitleElement = document.getElementById("pageSubtitle");
 const authGate = document.getElementById("authGate");
 const appSection = document.getElementById("appSection");
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const API_BASE_URL = window.localStorage.getItem("apiBaseUrl") || "http://localhost:3000";
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : "https://speech-to-text-tbva.onrender.com";
 
 let mediaRecorder = null;
 let recordedChunks = [];
