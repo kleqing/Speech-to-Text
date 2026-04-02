@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Speech to Text</title>
+    <link rel="stylesheet" href="./style.css" />
+    <!-- Ẩn body ngay lập tức nếu đã đăng nhập, tránh flash button Login -->
+    <script>
+        if (window.localStorage.getItem("accessToken")) {
+            document.documentElement.style.visibility = "hidden";
+        }
+    </script>
+</head>
+<body>
+    <main class="app-shell">
+        <section class="card card-sm">
+            <h1>Login</h1>
+            <p class="subtitle">Use your application account to access transcription features.</p>
+
+            <form id="loginForm" class="form" autocomplete="off">
+                <label class="label" for="username">Username</label>
+                <input id="username" name="username" class="input" type="text" required />
+
+                <label class="label" for="password">Password</label>
+                <input id="password" name="password" class="input" type="password" required />
+
+                <button id="loginButton" class="btn" type="submit">Login</button>
+            </form>
+
+            <p id="loginStatus" class="status">Enter your credentials.</p>
+        </section>
+    </main>
+
+    <script type="module" src="./login.js"></script>
+</body>
+</html>
+

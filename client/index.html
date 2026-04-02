@@ -10,20 +10,28 @@
     <main class="app-shell">
         <section class="card">
             <h1>Speech to Text</h1>
-            <p class="subtitle">Upload an audio file, or use your microphone for real-time transcription.</p>
+            <p id="pageSubtitle" class="subtitle">Login is required before using upload or microphone transcription.</p>
 
-            <div class="controls">
-                <input id="audioFile" type="file" accept="audio/*" hidden />
-                <button id="uploadButton" class="btn">Upload Audio File</button>
-                <button id="recordButton" class="btn btn-secondary">Start Recording</button>
+            <div id="authGate" class="auth-gate hidden">
+                <p class="auth-message">You are not logged in.</p>
+                <a class="btn" href="./login.html">Go to Login</a>
             </div>
 
-            <p id="status" class="status">Ready.</p>
+            <div id="appSection" class="hidden">
+                <div class="controls">
+                    <input id="audioFile" type="file" accept="audio/*" hidden />
+                    <button id="uploadButton" class="btn">Upload Audio File</button>
+                    <button id="recordButton" class="btn btn-secondary">Start Recording</button>
+                    <button id="logoutButton" class="btn btn-ghost">Logout</button>
+                </div>
 
-            <section class="result" aria-live="polite">
-                <h2>Transcript</h2>
-                <pre id="transcript">Your transcript will appear here.</pre>
-            </section>
+                <p id="status" class="status">Ready.</p>
+
+                <section class="result" aria-live="polite">
+                    <h2>Transcript</h2>
+                    <pre id="transcript">Your transcript will appear here.</pre>
+                </section>
+            </div>
         </section>
     </main>
 

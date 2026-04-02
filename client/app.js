@@ -1,9 +1,14 @@
 ﻿const uploadButton = document.getElementById("uploadButton");
 const recordButton = document.getElementById("recordButton");
+const logoutButton = document.getElementById("logoutButton");
 const audioFileInput = document.getElementById("audioFile");
 const transcriptElement = document.getElementById("transcript");
 const statusElement = document.getElementById("status");
+const subtitleElement = document.getElementById("pageSubtitle");
+const authGate = document.getElementById("authGate");
+const appSection = document.getElementById("appSection");
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const API_BASE_URL = window.localStorage.getItem("apiBaseUrl") || "http://localhost:3000";
 
 let mediaRecorder = null;
 let recordedChunks = [];
@@ -28,6 +33,39 @@ const setBusy = (busy) => {
     }
 };
 
+const showLoginState = () => {
+    authGate.classList.remove("hidden");
+    appSection.classList.add("hidden");
+    if (subtitleElement) {
+        subtitleElement.textContent = "Login is required before using upload or microphone transcription.";
+    }
+};
+
+const showAppState = () => {
+    authGate.classList.add("hidden");
+    appSection.classList.remove("hidden");
+    if (subtitleElement) {
+        subtitleElement.textContent = "Upload an audio file, or use your microphone for real-time transcription.";
+    }
+};
+
+if (!window.localStorage.getItem("accessToken")) {
+    showLoginState();
+} else {
+    showAppState();
+}
+
+const getAuthHeader = () => {
+    const accessToken = window.localStorage.getItem("accessToken");
+    const tokenType = window.localStorage.getItem("tokenType") || "Bearer";
+
+    if (!accessToken) {
+        return null;
+    }
+
+    return `${tokenType} ${accessToken}`;
+};
+
 const transcribeAudio = async (file, endpoint) => {
     if (!file) {
         setStatus("Please provide an audio file.");
@@ -37,12 +75,22 @@ const transcribeAudio = async (file, endpoint) => {
     const formData = new FormData();
     formData.append("audio", file);
 
+    const authHeader = getAuthHeader();
+    if (!authHeader) {
+        showLoginState();
+        setStatus("Please login first.");
+        return;
+    }
+
     setBusy(true);
     setStatus("Sending audio for transcription...");
 
     try {
         const response = await fetch(endpoint, {
             method: "POST",
+            headers: {
+                Authorization: authHeader,
+            },
             body: formData,
         });
 
@@ -62,6 +110,14 @@ const transcribeAudio = async (file, endpoint) => {
             rawBody.trimStart().toLowerCase().startsWith("<html");
 
         if (!response.ok) {
+            if (response.status === 401) {
+                window.localStorage.removeItem("accessToken");
+                window.localStorage.removeItem("tokenType");
+                showLoginState();
+                setStatus("Session expired. Please login again.");
+                return;
+            }
+
             if (looksLikeHtml) {
                 setStatus("API returned HTML instead of JSON. Check that frontend is calling the Node server origin.");
                 return;
@@ -95,8 +151,14 @@ audioFileInput.addEventListener("change", async (event) => {
         return;
     }
 
-    await transcribeAudio(selectedFile, "http://localhost:3000/api/stt/file");
+    await transcribeAudio(selectedFile, `${API_BASE_URL}/api/stt/file`);
     audioFileInput.value = "";
+});
+
+logoutButton.addEventListener("click", () => {
+    window.localStorage.removeItem("accessToken");
+    window.localStorage.removeItem("tokenType");
+    window.location.href = "./index.html";
 });
 
 const stopRecording = () => {
@@ -231,7 +293,7 @@ recordButton.addEventListener("click", async () => {
                 recordingStream = null;
             }
 
-            await transcribeAudio(file, "http://localhost:3000/api/stt/mic");
+            await transcribeAudio(file, `${API_BASE_URL}/api/stt/mic`);
         });
 
         mediaRecorder.start();
