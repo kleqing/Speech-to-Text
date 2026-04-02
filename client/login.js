@@ -4,7 +4,10 @@ const loginStatus = document.getElementById("loginStatus");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
 
-const API_BASE_URL = window.localStorage.getItem("apiBaseUrl") || "http://localhost:3000";
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : "https://speech-to-text-tbva.onrender.com";
 
 const setStatus = (message) => {
     loginStatus.textContent = message;
