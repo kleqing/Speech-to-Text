@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import sttRoutes from "./routes/sttRoute.js";
+import authRoutes from "./routes/authRoute.js";
 import cors from "cors";
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.get("/health", (_req, res) => {
     res.json({ ok: true });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api", sttRoutes);
 
 app.use((error, _req, res, _next) => {
